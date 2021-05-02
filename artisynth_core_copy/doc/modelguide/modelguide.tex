@@ -1,0 +1,81 @@
+%!TEX root = modelguide.tex <- not sure what this does
+
+\def\maindoc{}% let subchapters know the entire manual is being typeset
+\def\doctitle{ArtiSynth Modeling Guide}
+
+\def\pdfbreak{\iflatexml\else\\\fi}
+
+\input{startdoc}
+
+% basic links to other docs: http://www.artisynth.org/doc/html/xxx/xxx.html#sec
+
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{\protect\numberline{}Preface}
+
+This guide describes how to create mechanical and biomechanical models
+in ArtiSynth using its Java API. 
+
+It is assumed that the reader is familiar with basic Java programming,
+including variable assignment, control flow, exceptions, functions and
+methods, object construction, inheritance, and method overloading.
+Some familiarity with the basic I/O classes defined in {\tt
+java.io.*}, including input and output streams and the specification
+of file paths using {\tt File}, as well as the collection classes
+{\tt ArrayList} and {\tt LinkedList} defined in {\tt java.util.*}, is
+also assumed.
+
+\section*{How to read this guide}
+\addcontentsline{toc}{section}{\protect\numberline{}How to read this guide}
+
+Section \ref{Overview:sec} offers a general overview of ArtiSynth's
+software design, and briefly describes the algorithms used for
+physical simulation (Section \ref{PhysicsSimulation:sec}). The latter
+section may be skipped on first reading. A more comprehensive
+\href{http://www.artisynth.org/doc/artisynth.pdf}{overview paper} is
+available online.
+
+The remainder of the manual gives details instructions on how to build
+various types of mechanical and biomechanical models.  Sections
+\ref{MechModelsI:sec} and \ref{MechModelsII:sec} give detailed
+information about building general mechanical models, involving
+particles, springs, rigid bodies, joints, constraints, and
+contact. Section \ref{SimulationControl:sec} describes how to add
+control panels, controllers, and input and output data streams to a
+simulation.  Section \ref{FEMModels:sec} describes how to incorporate
+finite element models. The required mathematics is reviewed in Section
+\ref{MathematicalReview:sec}.
+
+If time permits, the reader will profit from a top-to-bottom read.
+However, this may not always be necessary. Many of the sections
+contain detailed examples, all of which are available in
+the package {\tt artisynth.demos.tutorial} and which may be run from
+ArtiSynth using {\sf Models > All demos > tutorials}. 
+More experienced readers may wish to find an appropriate example and
+then work backwards into the text and preceding sections for any
+needed explanatory detail.
+
+\mainmatter
+
+\input{overview}
+\input{supportingClasses}
+\input{mechanicalModelsI}
+\input{mechanicalModelsII}
+\input{simulationControl}
+\input{femModels}
+\input{muscleWrapping}
+\input{skinning}
+\input{dicom}
+\input{appendix}
+
+\iflatexml
+\bibliographystyle{plain}
+\bibliography{references}
+\else
+\printbibliography[title={References}]
+%\chapter*{References}
+%%\addcontentsline{toc}{chapter}{\protect\numberline{}References}
+%\bibliographystyle{plain}
+%\bibliography{references}
+\fi
+
+\end{document}
