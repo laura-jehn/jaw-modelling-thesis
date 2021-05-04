@@ -24,7 +24,7 @@ The artisynth_models project should now have been added to the ArtiSynth launch 
 ## Run ArtiSynth
 
 1. Right click on the "Run"-Button in Eclipse, select "Run Configurations" and go to Java Application/ArtiSynth on the left side of the panel.
-2. Put -model artisynth.models.dynjaw.\<Class\> as command line argument in tab "Arguments". For a simple Demo, substitute \<Class\> with JawDemo.java.
+2. Put -model artisynth.models.dynjaw.\<Class\> as command line argument in tab "Arguments". For a simple Demo, substitute \<Class\> with JawDemo.
 3. For running a script, put -noGui -script ../\<script_name\> as command line argument.
 
 ## Run python
