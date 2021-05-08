@@ -32,17 +32,72 @@ The artisynth_models project should now have been added to the ArtiSynth launch 
 2. Put -model artisynth.models.dynjaw.\<Class\> as command line argument in tab "Arguments". For a simple Demo, substitute \<Class\> with JawDemo. Then, run the simulation.
 3. For running the simulation with a script, put -noGui -script ../\<script_name\> as command line argument.
 
+## Simulation of the jaw
+
+A model of the jaw is defined in `JawModel.java`, while `JawDemo.java` instantiates this model and implements the dynamics of the simulation.
+
+### Running a custom simulation in ArtiSynth
+
+For modifying the simulation, you can either edit `JawDemo.java` or, preferably, create a new class extending the `JawDemo` class. For demonstration purposes, let's call this class `MyJawDemo`.
+
+#### Mouth opening simulation
+
+For performing a mouth opening movement, you can run `MyJawDemo` and manually activate the opening muscles in a corresponding panel of the GUI. Or, you can incrementally activate the opening muscle in the advance() method of `MyJawDemo`. They can be decremented again in the same way, for performing a closing movement. Similarly, a laterotrusion movement can be produced by incrementing the inferior pterygoid on one side (`axialSprings/lip:excitation`) instead of the opening muscles.
+
+```java
+public StepAdjustment advance (double t0, double t1, int flags) {
+
+   double openers_excitation = (double) myJawModel.getProperty ("exciters/bi_open:excitation").get ();
+   if(openers_excitation < 1.0) {
+      myJawModel.getProperty ("exciters/bi_open:excitation").set (openers_excitation+0.005);
+   }
+      
+   StepAdjustment sa = super.advance (t0, t1, flags);
+   return sa;
+}
+```
+
+#### Chewing simulation
+
+For simulating a chewing movement, in the attach() method of `MyJawDemo`, set the working directory to `data/controlchew` and set the file containing the input probes as `rightchew.art`. This will load the muscle activations for the chewing movement.
+
+```java
+public void attach(DriverInterface driver) {
+   workingDirname = "data/controlchew";
+   probesFilename = "rightchew.art";
+
+   super.attach(driver);
+}
+```
+
+#### Simulation of a therapy routine
+
+For executing existing therapy routines, you can run the classes `TrajectoryFollowing` and `ResistanceTraining`. In `TrajectoryFollowing`, you can adjust the control parameters Kv and Kp, and provide a trajectory for the lower incisor point (IP) to be followed. In `ResistanceTraining` you can set the TrainingType (as opening, or left/right laterotrusion), as well as the increment of the resistance.
+
+### Modifying the jaw model
+
+The following modifications can be made on the jaw model (in `JawModel.java`):
+
+* Set the condylar slope to one of the predefined slopes
+  * Change the variable condylarSlopeType
+* Set maximum mouth opening distance by adapting maximumMuscleForce of the opening muscles
+* Set maximum bite force by adapting maximumMuscleForce of the closing muscles
+  * Bite force can only be measured if there is a bolus between the teeth
+  * The bolus is created in `JawDemo.java`, in line 437 the maximum resistance of the bolus can be set (for a continuous measurement of the bite force, the resistance should be high, otherwise the bolus will collapse and bite force will not be displayed)
+
+### Exporting data from the simulation
+
+During a simulation, you might want to save some data, like the incisor trace or the position of any other frame marker in the model. This can be done by running a simulation, and then, in the probe panel of the GUI, select "Export data" for the output probe of the data you want to save. Alternatively, you can run a script (see `saveMarkerPositions.py`). This is especially useful if there is no defined output probe for the data you want to save.
+
 ## Run python
 
 For running the python scripts, you should have python version 3 installed. The main script is `python_scripts/kinematic_model.py`, and `python_scripts/kinematic_model_evaluation.py` contains examples for using the kinematic model. The other scripts are mainly for plotting.
 
 *TODO: add example for using the kinematic model
 
-## Making modifications
+```python
+if True:
+```
 
-### Running a custom simulation in ArtiSynth
-
-In JawDemo.java, set bolus resistance.
-
-# Contact
+## Contact
 In case you have any questions about this project, feel free to contact me: laura.jehn@stud.tu-darmstadt.de.
