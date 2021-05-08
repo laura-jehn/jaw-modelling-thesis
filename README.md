@@ -34,7 +34,7 @@ The artisynth_models project should now have been added to the ArtiSynth launch 
 
 ## Simulation of the jaw
 
-A model of the jaw is defined in `JawModel.java`, while `JawDemo.java` instantiates this model and implements the dynamics of the simulation.
+A model of the jaw is defined in `JawModel.java`, while `JawDemo.java` instantiates this model and implements the dynamics of the simulation. All Java source files for the jaw model can be found on the path `artisynth_models/src/artisynth/models/dynjaw/`.
 
 ### Running a custom simulation in ArtiSynth
 
@@ -91,13 +91,58 @@ During a simulation, you might want to save some data, like the incisor trace or
 
 ## Run python
 
-For running the python scripts, you should have python version 3 installed. The main script is `python_scripts/kinematic_model.py`, and `python_scripts/kinematic_model_evaluation.py` contains examples for using the kinematic model. The other scripts are mainly for plotting.
+For running the python scripts, you should have python version 3 installed. The main script is `python_scripts/kinematic_model.py`, whereas the other scripts are mainly for plotting.
 
-*TODO: add example for using the kinematic model
+### The kinematic model
+
+The forward kinematics for a set of transformation parameters can be calculated in two ways. `forward_kinematics_4DOF()` gives the transformation matrix for x, y, beta and gamma, where alpha and z are determined internally, so that the position of the condyles remains on the condylar slope. `forward_kinematics_6DOF()` gives the transformation matrix when all six parameters are given, and also returns the distances of the condyles to the condylar slope, i.e. the error of the transformation.
 
 ```python
-if True:
+# IP is the incisor position, mTi is the corresponding transformation matrix
+mTi, IP = forward_kinematics_4DOF(x, y, beta, gamma)
+# rz1, rz2 describe how far the position of the condyles deviates from the condylar slope
+mTi, rz1, rz2 = forward_kinematics_6DOF(x, y, z, alpha, beta, gamma):
 ```
+
+The inverse kinematics can be used for determining the transformation parameters for a target IP position as follows:
+
+```python
+q = inverse_kinematics(IP_target)
+```
+
+Using the solution of the inverse kinematics for a target IP position, torques in the three rotation axes can be calculated for applying a force F at the incisors:
+
+```python
+# q[3:6] corresponds to alpha, beta and gamma
+# True specifies that angles are in degrees
+# F = (fx, fy, fz)
+t = forces_to_torques(q[3], q[4], q[5], fx, fy, fz, True)
+```
+
+The last two steps can be iterated for a trajectory of the IP, which can be exported from the simulation for any movement (as described in a previous section). The calculation of forces to torques can be included when used in the context of a therapy routine, where, along with the IP trace, the applied forces (fx, fy, fz) are also given.
+
+```python
+
+# arrays for storing history of q and torques
+q_trajectory = []
+torque_trajectory = []
+
+for IP_target in IP_trace:
+   q = inverse_kinematics(IP_target)
+   
+   # set new initial q for optimisation
+   set_q_init(q)
+   q_trajectory.append(q)
+   
+   torque = forces_to_torques(q[3], q[4], q[5], fx, fy, fz, True)
+   torque_trajectory.append(torque)
+```
+
+#### Personalising the kinematic model
+
+The kinematic model can be personalised by
+* defining a function s(x) for the condylar slope, and setting the slope variable of the model to this function
+* changing the constraints for the transformation parameters in `inverse_kinematics()`.
 
 ## Contact
 In case you have any questions about this project, feel free to contact me: laura.jehn@stud.tu-darmstadt.de.
