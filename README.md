@@ -80,8 +80,8 @@ The following modifications can be made on the jaw model (in `JawModel.java`):
 
 * Set the condylar slope to one of the predefined slopes
   * Change the variable condylarSlopeType
-* Set maximum mouth opening distance by adapting maximumMuscleForce of the opening muscles
-* Set maximum bite force by adapting maximumMuscleForce of the closing muscles
+* Set maximum mouth opening distance by adapting maxMuscleForcePercentageOpeningMuscles
+* Set maximum bite force by adapting maxMuscleForcePercentageClosingMuscles
   * Bite force can only be measured if there is a bolus between the teeth
   * The bolus is created in `JawDemo.java`, in line 437 the maximum resistance of the bolus can be set (for a continuous measurement of the bite force, the resistance should be high, otherwise the bolus will collapse and bite force will not be displayed)
 
