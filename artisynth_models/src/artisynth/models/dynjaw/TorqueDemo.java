@@ -1,7 +1,6 @@
 package artisynth.models.dynjaw;
 
 import java.io.IOException;
-
 import artisynth.core.mechmodels.Frame;
 import artisynth.core.mechmodels.FrameMarker;
 import artisynth.core.mechmodels.RigidBody;
@@ -11,15 +10,21 @@ import artisynth.core.workspace.DriverInterface;
 import artisynth.core.probes.DataFunction;
 import maspack.matrix.Point3d;
 import maspack.matrix.RigidTransform3d;
+import maspack.matrix.RotationMatrix3d;
 import maspack.matrix.Vector3d;
 import maspack.matrix.VectorNd;
+import maspack.render.RenderProps;
 import maspack.spatialmotion.Wrench;
 
-public class TorqueDemo extends JawLarynxDemo {
+/* This class determines rotation and translation of the mandible
+ * and calculates torques for producing sample forces at the lower incisors.
+ *  */
+
+public class TorqueDemo extends JawDemo {
    
    // type of performed movement
    // 0 for opening, 1 for chewing
-   int movementType = 1;
+   int movementType = 0;
    
    FrameMarker lowerIncisor;
    // incisor frame
@@ -31,9 +36,9 @@ public class TorqueDemo extends JawLarynxDemo {
    
    Vector3d liPos_mi = new Vector3d(0, -79.4085, -37.8728);
    
-private class MIPose implements DataFunction{
+   private class MIPose implements DataFunction{
       
-      // determines position and orientation of the instantaneous frame
+      // determines position and orientation of the instantaneous frame each time step
       public void eval(VectorNd vec, double t, double trel) {
                
          // roll pitch yaw values of incisor frame
@@ -53,7 +58,7 @@ private class MIPose implements DataFunction{
          r.setTranslation (condylarAxisCenter);
          mi.setPose (r);
          
-         System.out.println("Rotation angles: " + Math.toDegrees (rpy[0]) + " " + Math.toDegrees (rpy[1]) + " " + Math.toDegrees (rpy[2]));
+         //System.out.println("Rotation angles: " + Math.toDegrees (rpy[0]) + " " + Math.toDegrees (rpy[1]) + " " + Math.toDegrees (rpy[2]));
          
          // get incisor position relative to the mandible frame
          Point3d liPos = lowerIncisor.getPosition();
@@ -73,8 +78,8 @@ private class MIPose implements DataFunction{
          vec.set (7, Math.toDegrees (rpy[1]));
          vec.set (8, Math.toDegrees (rpy[0]));
          
-         
-         // output torques for producing forces (unit vectors of the world coordinate axes)
+         // output torques for producing forces
+         // (unit vectors of the world coordinate axes of the coordinate system of the kinematic model)
          Wrench wr = new Wrench();
          mi.computeAppliedWrench (wr, new Vector3d(0, -1, 0), liPos_mi);
          vec.setSubVector (9, wr.m.clone ());
@@ -86,6 +91,7 @@ private class MIPose implements DataFunction{
       }
    }
 
+   // add probe for MIPose to the model
    public void addMIPoseProbe() {
       NumericMonitorProbe p = new NumericMonitorProbe (/*vsize=*/18, "MIPose.txt", 0, 10, 0.01);
       p.setDataFunction (new MIPose());
@@ -106,8 +112,8 @@ private class MIPose implements DataFunction{
       RigidBody jaw = (RigidBody) myJawModel.rigidBodies ().get ("jaw");
       myJawModel.attachFrame(incFrame, jaw);
       
-      // adding MIPoseProbe here overwrites all other input probes including muscle activations
-      // addMIPoseProbe();
+      RigidBody maxilla = (RigidBody) myJawModel.rigidBodies ().get ("maxilla");
+      RenderProps.setVisible (maxilla, true);
    }
    
    public void attach(DriverInterface driver) {
@@ -118,7 +124,6 @@ private class MIPose implements DataFunction{
       
       super.attach(driver);
       addMIPoseProbe();
-      addBreakPoint(1);
    }
    
    public StepAdjustment advance (double t0, double t1, int flags) {

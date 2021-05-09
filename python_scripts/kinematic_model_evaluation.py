@@ -5,17 +5,23 @@ import numpy as np
 import math as m
 from scipy.spatial.distance import euclidean
 
-plt.rcParams.update({'font.size': 12})
+plt.rcParams.update({'font.size': 14})
+
+
+## this script plots several figures:
+## the trajectory of the lower incisors (during opening/chewing)
+## the pose of the instantaneous frame (translation and rpy rotation),
+## and torques for applying a certain force at the incisors during the movement
+
 
 # data frames containing simulation data: IP displacement, instantaneous frame translation and rotation,
 # and sample torque values for unit forces in the coordinate axes of the mandible coordinate frame
 # torque Fy_x is the torque in the x axis for producing a force of (0 1 0) at the IP
-# data frame for opening
+# data frame for opening:
 df_opening = pd.read_csv("data_files/MIPoseMouthOpening.txt", delim_whitespace=True, header=None,
     names = ['time', 'ip_x', 'ip_y', 'ip_z', 'transl_x', 'transl_y', 'transl_z', 'rot_x', 'rot_y', 'rot_z',
     'torqueFx_x', 'torqueFx_y', 'torqueFx_z', 'torqueFy_x', 'torqueFy_y', 'torqueFy_z', 'torqueFz_x', 'torqueFz_y', 'torqueFz_z'])
-
-# data frame for chewing
+# data frame for chewing:
 df_chewing = pd.read_csv("data_files/MIPoseMastication.txt", delim_whitespace=True, header=None,
     names = ['time', 'ip_x', 'ip_y', 'ip_z', 'transl_x', 'transl_y', 'transl_z', 'rot_x', 'rot_y', 'rot_z',
     'torqueFx_x', 'torqueFx_y', 'torqueFx_z', 'torqueFy_x', 'torqueFy_y', 'torqueFy_z', 'torqueFz_x', 'torqueFz_y', 'torqueFz_z'])
@@ -24,15 +30,6 @@ flagOpening = True # False for chewing
 
 df = (df_opening if flagOpening else df_chewing)
 
-# transforms coordinates from kinematic model coordinates to simulation coordinates
-def model_to_sim_coords(coords):
-    sTm = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
-    return sTm.dot(coords)
-
-## this script plots several figures:
-## the trajectory of the lower incisors (during opening/chewing)
-## the pose of the instantaneous frame (translation and rpy rotation),
-## and torques for applying a specific force at the incisors during the movement
 
 # array for storing values of q
 q_trajectory = []
@@ -50,12 +47,37 @@ for i, row in df.iterrows():
 
     # iterate over x, y, z direction
     for i in range(3):
-        f = np.array([0,0,0])
+        f = np.array([0, 0, 0])
         f[i] = 1
         tx = km.forces_to_torques(q[3], q[4], q[5], f[0], f[1], f[2], True)
         torquesAxes[i].append(tx)
 
 q_trajectory = np.array(q_trajectory)
+
+### error calculation ###
+
+# calculate the difference between instantaneous frame in simulation and kinematic model
+# for rotation:
+y = np.transpose(np.array([np.negative(df['rot_y'].values), df['rot_x'].values, df['rot_z'].values]))
+
+errors = []
+for i in range(len(y)):
+    e = euclidean(y[i], q_trajectory[:, 3:6][i])
+    errors.append(e)
+
+#print("average error in rotation: " + str(1/len(y)*sum(errors)) + " deg")
+#print("maximum error: " + str(max(errors)) + " deg")
+
+# for translation:
+y = np.transpose(np.array([np.negative(df['transl_y'].values), df['transl_x'].values, df['transl_z'].values]))
+
+errors = []
+for i in range(len(y)):
+    e = euclidean(y[i], q_trajectory[:, 0:3][i])
+    errors.append(e)
+
+#print("average error in translation: " + str(1/len(y)*sum(errors)) + " mm")
+#print("maximum error: " + str(max(errors)) + " mm")
 
 
 ## first plot: incisor trajectory ##
@@ -67,62 +89,15 @@ if flagOpening:
     #plt.title("incisor trajectory") # during mouth opening in saggital plane
     plt.plot(np.negative(df['ip_y']), df['ip_z'], c='r')
     plt.xlabel("X (mm)")
-    # plot starting point
-    plt.scatter(-df['ip_y'][0], df['ip_z'][0], c='b')
+    plt.scatter(-df['ip_y'][0], df['ip_z'][0], c='b') # plot starting point
 else:
     #plt.title("incisor trajectory") # during chewing in frontal plane
     plt.plot(df['ip_x'], df['ip_z'], c='r')
     plt.xlabel("Y (mm)")
-    # plot starting point
-    plt.scatter(df['ip_x'][0], df['ip_z'][0], c='b')
+    plt.scatter(df['ip_x'][0], df['ip_z'][0], c='b') # plot starting point
 plt.show()
 
 ## second plot: translation and rotation of incisor frame ##
-
-# give average error and maximum error !
-
-# for rotation:
-
-y = np.array([np.negative(df['rot_y'].values), df['rot_x'].values, df['rot_z'].values])
-y = np.transpose(y)
-
-sum_e = 0
-for i in range(len(y)):
-    e = euclidean(y[i], q_trajectory[:, 3:6][i])
-    if(not np.linalg.norm(y[i]) == 0):
-        e_r = e / np.linalg.norm(y[i])
-    else:
-        e_r = 0
-    sum_e += e
-    print(e)
-    print("e_r: " + str(e_r))
-
-# average error
-print(sum_e)
-print( 1/len(y)*sum_e )
-
-#difference between df and q[:, 0:2]
-
-#print(q_trajectory[:, 0:3])
-y = np.array([np.negative(df['transl_y'].values), df['transl_x'].values, df['transl_z'].values])
-y = np.transpose(y)
-
-sum_e = 0
-for i in range(len(y)):
-    e = euclidean(y[i], q_trajectory[:, 0:3][i])
-    if(not np.linalg.norm(y[i]) == 0):
-        e_r = e / np.linalg.norm(y[i])
-    else:
-        e_r = 0
-    sum_e += e
-    #print(e)
-    #print("e_r: " + str(e_r))
-
-# average error
-#print(sum_e)
-#print(len(y))
-#print( 1/len(y)*sum_e )
-
 
 fig = plt.figure()
 plt.subplot(1, 2, 1)

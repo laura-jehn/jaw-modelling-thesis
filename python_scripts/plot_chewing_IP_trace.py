@@ -4,19 +4,17 @@ import pandas as pd
 
 plt.rcParams.update({'font.size': 14})
 
-# data frame for chewing
+# data frame for a limited chewing movement
 df = pd.read_csv("data_files/incisorDispReducedChewing.txt", delim_whitespace=True, header=None,
     names = ['ip_x', 'ip_y', 'ip_z'])
 
-# data frame for chewing
+# data frame for normal chewing movement
 df_2 = pd.read_csv("data_files/chewingTrajectory.txt", delim_whitespace=True, header=None,
     names = ['time', 'ip_x', 'ip_y', 'ip_z'])
 
+# data frame for the controlled chewing movement
 df_3 = pd.read_csv("data_files/incisorDispControlled.txt", delim_whitespace=True, header=None,
     names = ['time', 'ip_x', 'ip_y', 'ip_z'])
-
-#df_vel = pd.read_csv("../chewingTrajectoryWithVelocity.txt", delim_whitespace=True, header=None,
-    #names = ['time', 'ip_x', 'ip_y', 'ip_z', 'vel_x', 'vel_y', 'vel_z'])
 
 ## incisor trajectory during chewing in frontal plane ##
 
@@ -28,24 +26,9 @@ plt.xlabel("Y (mm)")
 plt.ylabel("Z (mm)")
 plt.axis('equal')
 plt.legend()
-plt.annotate("", xytext=(df_2['ip_x'][150],df_2['ip_z'][150]),xy=(df_2['ip_x'][160],df_2['ip_z'][160]),
+annotation_times = [150, 400, 500]
+for at in annotation_times:
+    plt.annotate("", xytext=(df_2['ip_x'][at],df_2['ip_z'][at]),xy=(df_2['ip_x'][at+10],df_2['ip_z'][at+10]),
     arrowprops=dict(arrowstyle="->", color='b'), size = 30)
-plt.annotate("", xytext=(df_2['ip_x'][400],df_2['ip_z'][400]),xy=(df_2['ip_x'][410],df_2['ip_z'][410]),
-    arrowprops=dict(arrowstyle="->", color='b'), size = 30)
-plt.annotate("", xytext=(df_2['ip_x'][500],df_2['ip_z'][500]),xy=(df_2['ip_x'][510],df_2['ip_z'][510]),
-    arrowprops=dict(arrowstyle="->", color='b'), size = 30)
-# plot starting point
-plt.scatter(df['ip_x'][0], df['ip_z'][0], c='r')
+plt.scatter(df['ip_x'][0], df['ip_z'][0], c='r') # plot starting point
 plt.show()
-
-#x = [i*0.001 for i in range(df_vel.shape[0])]
-
-#fig = plt.figure()
-#plt.title("")
-#plt.ylabel("Velocity (mm/s)")
-#plt.xlabel("Time (s)")
-#plt.plot(x, df_vel['vel_x'], label="x")
-#plt.plot(x, df_vel['vel_y'], label="y")
-#plt.plot(x, df_vel['vel_z'], label="z")
-#plt.legend()
-#plt.show()

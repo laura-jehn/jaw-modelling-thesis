@@ -23,14 +23,17 @@ import maspack.render.RenderProps;
 import maspack.render.Renderer;
 import maspack.render.GL.GLViewer;
 
-public class ControlJawDemo extends JawLarynxDemo {
+public class TrajectoryFollowing extends JawLarynxDemo {
    
    PointForce myPointForce;
    NumericControlProbe trajectory;
    
+   // Kp parameter of controller
    double Kp = 15;
+   // Kv parameter of controller
    double Kv = 0.005;
-   double ts = 0.001; // sampling time
+   // sampling time
+   double ts = 0.001;
    
    Vector3d err_prev = new Vector3d();
   
@@ -39,58 +42,52 @@ public class ControlJawDemo extends JawLarynxDemo {
    double xError = 0;
    Vector3d xIs = new Vector3d();
    Vector3d xShould = new Vector3d();
-   FrameMarker givenTrajectory = new FrameMarker(0.0, -47.9584, 41.7642);
    
+   // frame marker for current target position of trajectory, initialized to IP at teeth occlusion
+   FrameMarker targetIP = new FrameMarker(0.0, -47.9584, 41.7642);
    
+   // this function contains the control routine
    public class TrajectoryControlFunction implements DataFunction{
       
-      public void eval(VectorNd vec, double t, double trel) {
-                
+      // vec contains the current target IP (at timestep t)
+      public void eval(VectorNd vec, double t, double trel) {     
          // reset error
     	 if(t==0) {
             xError=0;
          }
+    	 
     	 // find position of lower incisors
          Vector3d li = myJawModel.frameMarkers().findComponent ("lowerincisor").getPosition ();
-         // get displacement of lower incisors by subtracting the initial position
-         Vector3d x_is = new Vector3d().sub (li, new Vector3d(0.0, -47.9584, 41.7642));
+         // x_is is displacement of lower incisors (subtracting their initial position (at teeth occlusion))
+         xIs = new Vector3d().sub (li, new Vector3d(0.0, -47.9584, 41.7642));
          
          // nächster soll-Wert laden
-         Vector3d x_should = new Vector3d(vec.get (0), vec.get (1), vec.get (2));
-         
-         setXIs(x_is);
-         xShould = x_should;
+         xShould = new Vector3d(vec.get (0), vec.get (1), vec.get (2));
          
          // for visualising the given trajectory
-         givenTrajectory.setPosition (x_should.x, x_should.y-47.9584, x_should.z+41.7642);
+         targetIP.setPosition (xIs.x, xShould.y-47.9584, xShould.z+41.7642);
          
-         Vector3d err = new Vector3d().sub (x_should, x_is);
+         Vector3d err = new Vector3d().sub (xShould, xIs);
          
-         // f = Kp * err + Kv * (err - err_prev)/ta
+         // f = Kp * err + Kv * (err - err_prev)/ts
          Vector3d f = new Vector3d().add (new Vector3d().scale (Kp, err), (new Vector3d().sub (err, err_prev)).scale (1/ts).scale(Kv));
          //System.out.println("f: " + f.toString ());
          
          xError += Math.pow (err.norm (), 2);
          
-         myPointForce.setForce (f.scale (1000));
+         myPointForce.setForce (f.scale (1000)); // scale Newton to internal force units
          
          //System.out.println("Newton: " + myPointForce.getMagnitude()/1000);
-         System.out.println(myPointForce.getForce().toString ());
+         
          myPointForce.setAxisLength (myPointForce.getMagnitude ()/1000);
          
          err_prev = err.clone ();
-         
-         //System.out.println("RMSE: " + Math.sqrt (xError));
       }
    }
    
    /** public access methods for jython **/
    public double getXError() {
       return xError;
-   }
-   
-   public void setXIs(Vector3d xIs) {
-      this.xIs = xIs;
    }
    
    public Vector3d getXIs() {
@@ -120,12 +117,12 @@ public class ControlJawDemo extends JawLarynxDemo {
    
    
    public void setVisible() {
-      RenderProps.setLineColor(givenTrajectory, Color.RED);
-      RenderProps.setPointColor(givenTrajectory, Color.RED);
+      RenderProps.setLineColor(targetIP, Color.RED);
+      RenderProps.setPointColor(targetIP, Color.RED);
       Point3d loc = new Point3d();
-      givenTrajectory.getLocation(loc);
-      givenTrajectory.setLocation(loc);
-      enableTracing (givenTrajectory);
+      targetIP.getLocation(loc);
+      targetIP.setLocation(loc);
+      enableTracing (targetIP);
    }
 
    public void build (String[] args) throws IOException {
@@ -135,6 +132,7 @@ public class ControlJawDemo extends JawLarynxDemo {
          (FrameMarker)myJawModel.findComponent ("frameMarkers/lowerincisor");
       myPointForce = new PointForce (mkr);
 
+      // add external force effector
       myJawModel.addForceEffector (myPointForce);
 
       RenderProps.setLineStyle (myPointForce, Renderer.LineStyle.CYLINDER);
@@ -144,6 +142,7 @@ public class ControlJawDemo extends JawLarynxDemo {
       
       workingDirname="data/controlchew";
       setWorkingDir();
+      // chewingTrajectory.txt contains the trajectory to be followed
       trajectory = new NumericControlProbe("chewingTrajectory.txt");
       trajectory.setVsize (3);
       trajectory.load ();

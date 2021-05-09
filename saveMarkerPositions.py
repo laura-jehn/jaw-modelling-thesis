@@ -9,9 +9,9 @@ rtmj = find("models/jawmodel/frameMarkers/rtmj")
 lowerIncisor = find("models/jawmodel/frameMarkers/lowerincisor")
 upperIncisor = find("models/jawmodel/frameMarkers/upperincisor")
 
-rCondyleTrace = open('../data/rtmjTrace.txt', 'w')
-lCondyleTrace = open('../data/ltmjTrace.txt', 'w')
-lowerIncisorTrace = open('../data/liTrace.txt', 'w')
+rCondyleTrace = open('data/rtmjTrace.txt', 'w')
+lCondyleTrace = open('data/ltmjTrace.txt', 'w')
+lowerIncisorTrace = open('data/liTrace.txt', 'w')
 
 play() # start simulation
 

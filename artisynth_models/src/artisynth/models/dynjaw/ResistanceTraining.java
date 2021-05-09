@@ -24,19 +24,29 @@ public class ResistanceTraining extends JawLarynxDemo {
    
    PointForce force;
    FrameMarker li;
+   // keep a list of previous incisor positions
    ArrayList<Point3d> movementHistory = new ArrayList<Point3d>();
    
-   // li at rest
+   // lower incisor at teeth occlusion
    Point3d liInit = new Point3d(0, -47.9584, 41.7642);
    
+   // inc describes whether muscle activation is currently incrementing
    boolean inc = true;
    
    public enum TrainingType {
-      OPENING("opening", 2, -1, 50), LEFT_LATEROTRUSION("llat", 0, 1, 10), RIGHT_LATEROTRUSION("rlat", 0, -1, 10);
+      // increment steps can be adjusted 
+      OPENING("opening", 2, -1, 50),
+      LEFT_LATEROTRUSION("llat", 0, 1, 10),
+      RIGHT_LATEROTRUSION("rlat", 0, -1, 10);
       
+      // type of training
       String trainingName;
+      // axis and sign together determine the direction of the resistance
+      // axis along which the force acts, 0 for x-axis, and 2 for z-axis
       int axis;
+      // direction of force along the axis, 1 for positive and -1 for negative direction of axis
       int sign;
+      // increment step of the force (in 1/1000N)
       int incSize;
       
       private TrainingType (String trainingName, int axis, int sign, int incSize) {
@@ -105,7 +115,7 @@ public class ResistanceTraining extends JawLarynxDemo {
       Point3d li_displ = (Point3d)new Point3d().sub (li_pos, liInit);
       double displ_dist = li_displ.norm ();
       
-      System.out.println("displ_dist: " + displ_dist);
+      //System.out.println("displ_dist: " + displ_dist);
            
       // always keep 10 previous li positions
       int noPreviousPoints = movementHistory.size ();
@@ -150,7 +160,7 @@ public class ResistanceTraining extends JawLarynxDemo {
             direction.set (i, -1 * sign);
             force.setDirection(direction);
             
-            System.out.println("set force to " + force.getMagnitude ()/1000 + " N");
+            // System.out.println("set force to " + force.getMagnitude ()/1000 + " N");
             
          } else { 
            movementState = MovementState.MOVEMENT_BACK;
@@ -160,73 +170,45 @@ public class ResistanceTraining extends JawLarynxDemo {
          
       }
       
+      // show force
       force.setAxisLength (force.getMagnitude ()/100);
       
-      double openers_excitation = (double) myJawModel.getProperty ("exciters/bi_open:excitation").get ();
-      double lip_excitation = (double) myJawModel.getProperty ("axialSprings/lip:excitation").get ();
-      double rip_excitation = (double) myJawModel.getProperty ("axialSprings/rip:excitation").get ();
+      String muscle = "";
+      double excitation = 0;
       
+      // depending on the trainingType, perform the corresponding movement
+      // by activating, then deactivating, the corresponding muscles
       switch(trainingType) {
-         case OPENING:            
-            if(openers_excitation >= 0.5){
-               inc = false;
-            }
-            if(inc) {
-               myJawModel.getProperty ("exciters/bi_open:excitation").set (openers_excitation+0.0025);
-            } else if(openers_excitation > 0.0){
-               myJawModel.getProperty ("exciters/bi_open:excitation").set (openers_excitation-0.005);
-            }
+         case OPENING:
+            muscle = "exciters/bi_open";
+            excitation = (double) myJawModel.getProperty (muscle + ":excitation").get ();
             break;
          case LEFT_LATEROTRUSION:
-            myJawModel.getProperty ("exciters/bi_open:excitation").set (0.00);
-            if(rip_excitation >= 1.0){
-               inc = false;
-            }
-            if(inc) {
-               myJawModel.getProperty ("axialSprings/rip:excitation").set (rip_excitation+0.0025);
-            } else if(rip_excitation > 0.0) {
-               myJawModel.getProperty ("axialSprings/rip:excitation").set (rip_excitation-0.005);
-            }
+            //small opener excitation for a more stable laterotrusion
+            myJawModel.getProperty ("exciters/bi_open:excitation").set (0.005);
+            muscle = "axialSprings/rip";
+            excitation = (double) myJawModel.getProperty (muscle + ":excitation").get ();
             break;
          case RIGHT_LATEROTRUSION:
-            myJawModel.getProperty ("exciters/bi_open:excitation").set (0.01);
-            if(lip_excitation >= 1.0){
-               inc = false;
-            }
-            if(inc) {
-               myJawModel.getProperty ("axialSprings/lip:excitation").set (lip_excitation+0.0025);
-            } else if(lip_excitation > 0.0) {
-               myJawModel.getProperty ("axialSprings/lip:excitation").set (lip_excitation-0.005);
-            }
+          //small opener excitation for a more stable laterotrusion
+            myJawModel.getProperty ("exciters/bi_open:excitation").set (0.005);
+            muscle = "axialSprings/lip";
+            excitation = (double) myJawModel.getProperty (muscle + ":excitation").get ();
             break;
-          default: // no muscle activation
-            
+          default: // no muscle activation            
+      }
+      
+      if(excitation >= 1.0){
+         inc = false;
+      }
+      if(inc) {
+         myJawModel.getProperty (muscle + ":excitation").set (excitation+0.0025);
+      } else if(excitation > 0.0){
+         myJawModel.getProperty (muscle + ":excitation").set (excitation-0.005);
       }
       
       StepAdjustment sa = super.advance (t0, t1, flags);
       return sa;
    }
-
-   /*public void attach(DriverInterface driver) {
-      super.attach (driver);
-      
-      File file = new File(ArtisynthPath.getSrcRelativePath(JawDemo.class,
-         "controlpanels/" + "resistance" + ".art"));
-      if (file != null) {
-         ControlPanel panel = null;
-         try {
-            panel = (ControlPanel) ComponentUtils.loadComponent(file, this,
-                  ControlPanel.class);
-         } catch (Exception e) {
-            System.out.println(
-               "Error reading control panel file "+file+": "+e.getMessage());
-         }
-         if (panel != null) {
-            
-            this.addControlPanel(panel);
-         }
-      }
-      
-   }*/
    
 }

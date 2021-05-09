@@ -1,12 +1,14 @@
 # ArtisynthScript: "trajectoryFollowing"
 
+# load trajectory following simulation
 loadModel('artisynth.models.dynjaw.TrajectoryFollowing')
 m = root()
 
+# different values for Kv
 Kv = [0, 0.005, 0.01, 0.02]
 
 for kv in Kv:
-    f_name = '../python_scripts/data_files/x_error_' + str(kv) + '.txt'
+    f_name = 'python_scripts/data_files/x_error_' + str(kv) + '.txt'
     out_error = open(f_name, 'w')
     m.setKv(kv)
     for kp in range(5, 31, 5):
@@ -20,7 +22,7 @@ for kv in Kv:
         m.resetXError()
         reset() # resets simulation
         print("run: "+ str(kp) + ", " + str(kv))
-        print(err)
+        print("(SSE) error was: " + str(err))
     out_error.close()
 
 quit()

@@ -23,7 +23,6 @@ public class JawLarynxDemo extends JawDemo {
    public void build (String[] args) throws IOException {
       super.build (args);
 
-      //setIncisorVisible();
       String[] hiddenBodies = new String[] { "cranium", "pharynx", "vertebrae" };
       for (int i = 0; i < hiddenBodies.length; i++) {
 	 RigidBody body = myJawModel.rigidBodies().get(hiddenBodies[i]);
@@ -34,8 +33,6 @@ public class JawLarynxDemo extends JawDemo {
 	    Color.PINK);
       RenderProps.setFaceColor(myJawModel.bodyConnectors().get("LTMJ"),
 	    Color.PINK);
-
-      //setIncisorVisible();
    }
 
    public void setupJawModel()

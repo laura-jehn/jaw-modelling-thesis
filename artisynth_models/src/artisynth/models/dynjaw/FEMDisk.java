@@ -50,8 +50,6 @@ public class FEMDisk extends JawDemo {
    // inc describes whether mouth opening muscle activation is currently incrementing
    boolean inc = true;
    
-   
-   
    public void build(String[] args) throws IOException {
       super.build(args);
       
@@ -62,7 +60,7 @@ public class FEMDisk extends JawDemo {
       disk = new FemModel3d ("disk");
       myJawModel.add (disk);
       
-      PolygonalMesh condyleSurface = new PolygonalMesh("condyleSurface.obj");
+      PolygonalMesh condyleSurface = new PolygonalMesh("../jaw-modelling-thesis/condyleSurface.obj");
       int layers = 4;         // no. of layers  
       double thickness = 0.2;  // layer thickness
       double offset = 0.1;  // center the layers about the surface
@@ -90,7 +88,7 @@ public class FEMDisk extends JawDemo {
       RenderProps.setVisible (maxilla, true);
       
       myJawModel.setCollisionBehavior (disk, jaw, true);
-      myJawModel.setCollisionBehavior (disk, maxilla, true);
+      myJawModel.setCollisionBehavior (disk, maxilla, false); // should be set to true eventually, but currently results in inverted elements
       
       Point3d ltmj_pos = myJawModel.frameMarkers ().get ("ltmj").getPosition ();
       // the ltmj position (centre of left condyle) is used to position the ligaments

@@ -303,6 +303,11 @@ public class JawModel extends MechModel implements ScalableUnits,
    
    static CondylarSlopeType condylarSlopeType = CondylarSlopeType.CUBIC; // default slope is cubic polynomial defined by curvParams
 
+   // set to below one for a limited mouth opening distance
+   double maxMuscleForcePercentageOpeningMuscles = 1.0;
+   // set to below one for reduced bite force
+   double maxMuscleForcePercentageClosingMuscles = 1.0;
+   
    public enum JawPlanes {
       LTMJ("ltmj", false, 40.0), RTMJ("rtmj", false, 40.0), LBITE("lbite",
 	    true, 25.0), RBITE("rbite", true, 25.0), LMED("ltmj", true, 25.0), RMED(
@@ -1094,23 +1099,19 @@ public class JawModel extends MechModel implements ScalableUnits,
       // Anat Rec
       
       int flag = 0; // normal muscle strength
-      flag = 1; // reduced muscle strength
+      //flag = 1; // reduced muscle strength
       //flag = 2;
       
       double ipMaxForce = 66.9;
       double adMaxForce = 40;
       
-      if(flag>0) {
-         // limited range of motion
-         double maxMuscleForcePercentage = 0.005;
-         // reduce opening muscle force: 
-         ipMaxForce *= maxMuscleForcePercentage; // lp (ip)
-         shlpMaxForce *= maxMuscleForcePercentage; // lp (sp)
-         adMaxForce *= maxMuscleForcePercentage; // ad
-         geniohyoidMaxForce *= maxMuscleForcePercentage; // gh
-         mylohyoidMaxForce *= maxMuscleForcePercentage; // my (am, pm)
+      // set maximum muscle force of opening muscles
+      ipMaxForce *= maxMuscleForcePercentageOpeningMuscles; // lp (ip)
+      shlpMaxForce *= maxMuscleForcePercentageOpeningMuscles; // lp (sp)
+      adMaxForce *= maxMuscleForcePercentageOpeningMuscles; // ad
+      geniohyoidMaxForce *= maxMuscleForcePercentageOpeningMuscles; // gh
+      mylohyoidMaxForce *= maxMuscleForcePercentageOpeningMuscles; // my (am, pm)
          
-      }
       
       double mpMaxForce = 174.8;
       double dmMaxForce = 81.6;
@@ -1119,17 +1120,13 @@ public class JawModel extends MechModel implements ScalableUnits,
       double mtMaxForce = 95.6;
       double ptMaxForce = 75.6;
       
-      if(flag>1) {
-         // reduced bite force
-         double maxMuscleForcePercentage = 0.0;
-         // reduce closing muscle force:
-         mpMaxForce *= maxMuscleForcePercentage;
-         dmMaxForce *= maxMuscleForcePercentage;
-         smMaxForce *= maxMuscleForcePercentage;
-         atMaxForce *= maxMuscleForcePercentage;
-         mtMaxForce *= maxMuscleForcePercentage;
-         ptMaxForce *= maxMuscleForcePercentage;
-      }
+      // set maximum muscle force of closing muscles
+      mpMaxForce *= maxMuscleForcePercentageClosingMuscles;
+      dmMaxForce *= maxMuscleForcePercentageClosingMuscles;
+      smMaxForce *= maxMuscleForcePercentageClosingMuscles;
+      atMaxForce *= maxMuscleForcePercentageClosingMuscles;
+      mtMaxForce *= maxMuscleForcePercentageClosingMuscles;
+      ptMaxForce *= maxMuscleForcePercentageClosingMuscles;
 
       // NB - max length and opt length get overwritten in
       // updateMuscleLengthProps()

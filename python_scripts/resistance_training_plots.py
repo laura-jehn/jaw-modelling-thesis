@@ -11,9 +11,9 @@ plt.rcParams.update({'font.size': 14})
 
 trainingList = ['opening', 'llat', 'rlat']
 
-x = [i*0.005 for i in range(700)]
+x = [i*0.005 for i in range(1000)] # x axis values (time in seconds)
 
-def plot_forces(name):
+for t in trainingList:
     force = pd.read_csv("data_files/force_" + name + ".txt", delim_whitespace=True, header=None,
         names = ['fx', 'fy', 'fz'])
     li = pd.read_csv("data_files/li_" + name + ".txt", delim_whitespace=True, header=None,
@@ -22,7 +22,6 @@ def plot_forces(name):
     fig = plt.figure()
     plt.subplot(1, 2, 1)
 
-    x = [i*0.005 for i in range(1000)]
     if name == 'opening':
         plt.title("Force in z")
         df_fullMuscleForce = pd.read_csv("data_files/force_" + name + "_fullMuscleForce.txt", delim_whitespace=True, header=None,
@@ -65,16 +64,8 @@ def plot_forces(name):
     plt.title("Torques for forces with compromised muscle function")
     plt.xlabel("Time (s)")
     plt.ylabel("Torque (Nmm)")
-    if z:
-        plt.plot(x, torques[:,0], label="in x axis")
-        plt.plot(x, torques[:,1], label="in y axis")
-        plt.plot(x, torques[:,2], label="in z axis")
-    else:
-        plt.plot(x, torques[:,0], label="in x axis")
-        plt.plot(x, torques[:,1], label="in y axis")
-        plt.plot(x, torques[:,2], label="in z axis")
+    plt.plot(x, torques[:,0], label="in x axis")
+    plt.plot(x, torques[:,1], label="in y axis")
+    plt.plot(x, torques[:,2], label="in z axis")
     plt.legend()
     plt.show()
-
-for t in trainingList:
-    plot_forces(t)

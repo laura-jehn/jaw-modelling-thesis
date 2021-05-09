@@ -4,7 +4,9 @@ import pandas as pd
 import numpy as np
 import math as m
 
-plt.rcParams.update({'font.size': 12})
+plt.rcParams.update({'font.size': 14})
+
+### plot IP trace from ArtiSynth for the three approximated condylar slopes ###
 
 tg = pd.read_csv("data_files/TGSlopeOpening.txt", delim_whitespace=True, header=None,
     names = ['time', 'x', 'y', 'z'])

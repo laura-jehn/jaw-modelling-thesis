@@ -47,7 +47,7 @@ public class CondyleTrajectoryDemo extends JawLarynxDemo {
       }*/
       
       double openers_excitation = (double) myJawModel.getProperty ("exciters/bi_open:excitation").get ();
-      if(openers_excitation >= 1.0) {
+      if(openers_excitation >= 0.4) {
          inc = false;
       }
       if(inc) {

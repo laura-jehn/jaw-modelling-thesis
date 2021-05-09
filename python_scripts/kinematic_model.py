@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from scipy import optimize
 
 inc_init = np.array([79.4085, 0, -37.8728, 1]) # lower incisors at teeth occlusion
-mp1 = [0, -51.7785, 0, 1] # right condyle at teeth occlusion
-mp2 = [0, 51.7785, 0, 1] # left condyle at teeth occlusion
+ip1 = [0, -51.7785, 0, 1] # right condyle at teeth occlusion
+ip2 = [0, 51.7785, 0, 1] # left condyle at teeth occlusion
 
 # condylar slopes
 slope_wen = (lambda x: 0.0052*x**3-0.072*x**2-0.387*x) # taken from paper by Wen et. al, 2016
@@ -21,16 +21,17 @@ def set_q_init(q):
     global optimization_initial_q
     optimization_initial_q = q
 
-### given model parameters q forces_to_torques() computes the torques
-### that have to be applied in the three rotational joints
+### given transformation parameters forces_to_torques() computes the
+### torques that have to be applied in the three rotational joints
 ### to produce force F at the lower incisors
 ### params: alpha, beta, gamma in degrees if degrees=true, else in radians
 ### F = (fx, fy, fz) force in world (mandible) coordinates
 def forces_to_torques(alpha, beta, gamma, fx, fy, fz, degrees=False):
     if degrees:
-        mTi = forward_kinematics_6DOF(0, 0, 0, np.radians(alpha), np.radians(beta), np.radians(gamma))[0]
-    else:
-        mTi = forward_kinematics_6DOF(0, 0, 0, alpha, beta, gamma)[0]
+        alpha = np.radians(alpha)
+        beta = np.radians(beta)
+        gamma = np.radians(gamma)
+    mTi = forward_kinematics_6DOF(0, 0, 0, alpha, beta, gamma)[0]
     mTiX = mTi.dot(inc_init)
     f = np.array([fx, fy, fz])
     # transform F to instantaneous frame coordinates
@@ -43,15 +44,15 @@ def forces_to_torques(alpha, beta, gamma, fx, fy, fz, degrees=False):
 ### returns origin of instantaneous frame and incisor position (IP = mTi*inc_init)
 def forward_kinematics_4DOF(x_i, y_i, beta_i, gamma_i):
     mTi = compute_correlated_params(x_i, y_i, beta_i, gamma_i)[0]
-    return mTi[:,3], mTi.dot(inc_init)
+    return mTi, mTi.dot(inc_init)
 
 ### determines alpha and z given x, y beta and gamma using sympy solver
 ### parameters: x, y, beta (rad), gamma (rad)
 ### returns transformation matrix mTi, alpha (rad), z
 def compute_correlated_params(x_i, y_i, beta_i, gamma_i):
 
-    mP1 = Matrix(mp1) # right condyle
-    mP2 = Matrix(mp1) # left condyle
+    iP1 = Matrix(ip1) # right condyle
+    iP2 = Matrix(ip1) # left condyle
 
     alpha_i, z_i = symbols("alpha, z_i")
 
@@ -69,13 +70,13 @@ def compute_correlated_params(x_i, y_i, beta_i, gamma_i):
 
     mTi_func = lambdify((alpha_i, z_i), mTi, modules="numpy")
 
-    iP1 = mTi*mP1 # x1 y1 z1
-    x1 = iP1[0]
-    z1 = iP1[2]
-    iP2 = mTi*mP2 # x2 y2 z2
-    x2 = iP2[0]
-    z2 = iP2[2]
-    Oi = 0.5 * (iP1 + iP2) # Oi is midpoint of condylar axis
+    mP1 = mTi*iP1 # x1 y1 z1
+    x1 = mP1[0]
+    z1 = mP1[2]
+    mP2 = mTi*iP2 # x2 y2 z2
+    x2 = mP2[0]
+    z2 = mP2[2]
+    Oi = 0.5 * (mP1 + mP2) # Oi is midpoint of condylar axis
     Oiz = Oi[2]
 
     res = nsolve((slope(x1)-z1, slope(x2)-z2, Oiz-z_i), (alpha_i, z_i), (0, 0), check=True)
@@ -84,14 +85,13 @@ def compute_correlated_params(x_i, y_i, beta_i, gamma_i):
     return mTi_func(alpha, z), alpha, z
 
 ### returns the transformation matrix from the mandible origin to instantaneous frame
-### rz1, rz2 describe how far the position of the condyles deviates from the condylar slope
-### they have to be minimized for finding alpha and z
+### returns rz1, rz2 describing how far the position of the condyles deviates from the condylar slope
 ### alpha, beta, gamma in radians
 ### x, y, z translations
 def forward_kinematics_6DOF(x_i, y_i, z_i, alpha_i, beta_i, gamma_i):
 
-    mP1 = np.array(mp1) # right condyle
-    mP2 = np.array(mp2) # left condyle
+    iP1 = np.array(ip1) # right condyle
+    iP2 = np.array(ip2) # left condyle
 
     ca = np.cos(alpha_i)
     cb = np.cos(beta_i)
@@ -106,17 +106,17 @@ def forward_kinematics_6DOF(x_i, y_i, z_i, alpha_i, beta_i, gamma_i):
                 [0, 0, 0, 1]])
 
     # instantaneous positions of condyles
-    iP1 = mTi.dot(mP1)
-    iP2 = mTi.dot(mP2)
+    mP1 = mTi.dot(iP1)
+    mP2 = mTi.dot(iP2)
     # condylar slope
-    rz1 = slope(iP1[0])-iP1[2]
-    rz2 = slope(iP2[0])-iP2[2]
+    rz1 = slope(mP1[0])-mP1[2]
+    rz2 = slope(mP2[0])-mP2[2]
     return mTi, rz1, rz2
 
-# returns angles in degrees
+# returns q, with angles in degrees
 def inverse_kinematics(inc_target):
     # if inc_target is given in 3d,
-    # transform inc_target to homogenous notation
+    # transform inc_target to homogeneous notation
     if(len(inc_target) == 3):
         inc_target.append(1)
     # inc_target = mTi(q)*inc_init
@@ -125,23 +125,22 @@ def inverse_kinematics(inc_target):
         mTi, rz1, rz2 = forward_kinematics_6DOF(q[0], q[1], q[2], np.radians(q[3]), np.radians(q[4]), np.radians(q[5]))
         mTiX = mTi.dot(inc_init)
         v = mTiX - inc_target
+        # rz1, rz2 describe how far the position of the condyles deviates from the condylar slope
         return np.linalg.norm(np.array([rz1, rz2]))**2 + np.linalg.norm(np.array([v[0], v[1], v[2]]))
 
     sol = optimize.minimize(fw_kin, optimization_initial_q, method="SLSQP",
-        bounds=([0, 15], [-5, 5], [-7, 0], [-4, 4], [0, 35], [-10, 10]))
+        bounds=([0, 15], [-2, 2], [-7, 0], [-4, 4], [0, 35], [-10, 10]))
 
     q = sol.x
     mTi, _, _ = forward_kinematics_6DOF(q[0], q[1], q[2], np.radians(q[3]), np.radians(q[4]), np.radians(q[5]))
 
-    assert(np.linalg.norm(mTi.dot(inc_init) - inc_target) < 1.5) # 1.5mm error margin
-    return sol.x
+    error = np.linalg.norm(mTi.dot(inc_init) - inc_target)
+    try:
+        assert(error < 1e-4) # error margin
+    except AssertionError:
+        print("target IP was missed by " + str(error) + " mm")
+    return q
 
-
-### inverse kinematics ###
-
-inc_target = np.array([70.00, 0, -66.67, 1])
-q = inverse_kinematics(inc_target)
-#print(q)
 
 ## test forces_to_torques at initial position of instantaneous frame ##
 
