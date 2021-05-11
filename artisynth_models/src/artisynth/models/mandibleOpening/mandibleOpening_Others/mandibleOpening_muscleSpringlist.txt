@@ -1,0 +1,119 @@
+#####superficial_masseter
+Lt_superficial_masseter
+        frameMarker Lt_superficial_masseter_skull frameMarker Lt_superficial_masseter_mandible
+end
+
+Rt_superficial_masseter
+        frameMarker Rt_superficial_masseter_skull frameMarker Rt_superficial_masseter_mandible
+end
+
+#####deep_masseter
+Lt_deep_masseter
+        frameMarker Lt_deep_masseter_skull frameMarker Lt_deep_masseter_mandible
+end
+
+Rt_deep_masseter
+        frameMarker Rt_deep_masseter_skull frameMarker Rt_deep_masseter_mandible
+end
+
+#####anterior temporal
+Lt_anterior_temporal
+        frameMarker Lt_anterior_temporal_skull frameMarker Lt_anterior_temporal_mandible
+end
+
+Rt_anterior_temporal
+        frameMarker Rt_anterior_temporal_skull frameMarker Rt_anterior_temporal_mandible
+end
+
+#####middle temporal
+Lt_middle_temporal
+        frameMarker Lt_middle_temporal_skull frameMarker Lt_middle_temporal_mandible
+end
+
+Rt_middle_temporal
+        frameMarker Rt_middle_temporal_skull frameMarker Rt_middle_temporal_mandible
+end
+
+#####posterior temporal
+Lt_posterior_temporal
+        frameMarker Lt_posterior_temporal_skull frameMarker Lt_posterior_temporal_mandible
+end
+
+Rt_posterior_temporal
+        frameMarker Rt_posterior_temporal_skull frameMarker Rt_posterior_temporal_mandible
+end
+
+#####medial pterygoid
+Lt_medial_pterygoid
+        frameMarker Lt_medial_pterygoid_skull frameMarker Lt_medial_pterygoid_mandible
+end
+
+Rt_medial_pterygoid
+        frameMarker Rt_medial_pterygoid_skull frameMarker Rt_medial_pterygoid_mandible
+end
+#####lateral pterygoid
+#superior lateral pterygoid
+Lt_superior_lateral_pterygoid
+        frameMarker Lt_superior_lateral_pterygoid_skull frameMarker Lt_superior_lateral_pterygoid_mandible
+end
+
+Rt_superior_lateral_pterygoid
+        frameMarker Rt_superior_lateral_pterygoid_skull frameMarker Rt_superior_lateral_pterygoid_mandible
+end
+
+#inferior lateral pterygoid
+Lt_inferior_lateral_pterygoid
+        frameMarker Lt_inferior_lateral_pterygoid_skull frameMarker Lt_inferior_lateral_pterygoid_mandible
+end
+
+Rt_inferior_lateral_pterygoid
+        frameMarker Rt_inferior_lateral_pterygoid_skull frameMarker Rt_inferior_lateral_pterygoid_mandible 
+end
+#####Geniohyoid
+Lt_geniohyoid
+        frameMarker Lt_geniohyoid_mandible frameMarker Lt_geniohyoid_hyoid
+end
+
+Rt_geniohyoid
+        frameMarker Rt_geniohyoid_mandible frameMarker Rt_geniohyoid_hyoid
+end
+
+#####anterior_mylohyoid
+Lt_anterior_mylohyoid
+        frameMarker Lt_anterior_mylohyoid_mandible frameMarker Lt_anterior_mylohyoid_hyoid
+end
+
+Rt_anterior_mylohyoid
+        frameMarker Rt_anterior_mylohyoid_mandible frameMarker Rt_anterior_mylohyoid_hyoid
+end
+#####posterior_mylohyoid
+Lt_posterior_mylohyoid
+        frameMarker Lt_posterior_mylohyoid_mandible frameMarker Lt_posterior_mylohyoid_hyoid
+end
+
+Rt_posterior_mylohyoid
+        frameMarker Rt_posterior_mylohyoid_mandible frameMarker Rt_posterior_mylohyoid_hyoid
+end
+
+#####digastric
+Lt_digastric
+        frameMarker Lt_digastric_mandible frameMarker Lt_digastric_hyoid  
+end
+
+Rt_digastric
+        frameMarker Rt_digastric_mandible frameMarker Rt_digastric_hyoid  
+end
+
+
+#####stylohyoid
+
+Lt_stylohyoid
+        frameMarker Lt_styloyoid_skull frameMarker Lt_styloyoid_hyoid 
+end
+
+Rt_stylohyoid
+        frameMarker Rt_styloyoid_skull frameMarker Rt_styloyoid_hyoid 
+end
+
+
+

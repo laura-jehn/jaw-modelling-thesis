@@ -1,0 +1,13 @@
+ControlPanel [ name="Resistance"
+  size=[ 403 80 ]
+  location=[ 792 123 ]
+  options=""
+  maspack.widgets.DoubleFieldSlider
+  [ property="models/jawmodel/forceEffectors/2:magnitude"
+    labelText="magnitude"
+    labelFontColor=[ 0.200 0.200 0.200 ]
+    backgroundColor=[ 0.933 0.933 0.933 ]
+    format="%8.3f"
+    sliderRange=maspack.util.DoubleInterval [ [0,500] ]
+  ]
+]
