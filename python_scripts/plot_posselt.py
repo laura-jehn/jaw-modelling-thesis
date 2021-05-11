@@ -43,7 +43,7 @@ for i in range(15):
 # at max x, max beta position
 o, x, z = fw_km(15, 0, 34, 0)
 
-plt.annotate('C', xy=(x, z), xytext=(x+0.5, z-3), c='C0')
+plt.annotate('C', xy=(x, z), xytext=(x-4, z-1), c='C0')
 
 # beta = -4: mandible in maximum protrusion, lower teeth overlap upper teeth
 # -4 so that lower incisors can be same height as upper incisors at max protrusion
@@ -63,15 +63,15 @@ plt.xlabel("X (mm)")
 plt.ylabel("Z (mm)")
 plt.axis("equal")
 
-# plot angle
+# plot angle (deprecated)
 mTi_min, min_IP = km.forward_kinematics_4DOF(0, 0, np.radians(0), np.radians(0))
 mTi_max, max_IP = km.forward_kinematics_4DOF(15, 0, np.radians(34), np.radians(0))
 
 min_o = mTi_min[:,3]
 max_o = mTi_max[:,3]
 
-plt.plot([max_o[0], min_IP[0]], [max_o[2], min_IP[2]], ls='dashed', c='grey')
-plt.plot([max_o[0], max_IP[0]], [max_o[2], max_IP[2]], ls='dashed', c='grey')
+#plt.plot([max_o[0], min_IP[0]], [max_o[2], min_IP[2]], ls='dashed', c='grey')
+#plt.plot([max_o[0], max_IP[0]], [max_o[2], max_IP[2]], ls='dashed', c='grey')
 
 theta = np.linspace(-np.pi/3, -np.pi/7, 20)
 
@@ -80,7 +80,7 @@ r = 20 # circle radius
 x1 = r * np.cos(theta) + max_o[0]
 x2 = r * np.sin(theta) + max_o[2]
 
-plt.plot(x1, x2, color='gray', ls='dashed')
-plt.text(max_o[0]+7, max_o[2]-11, '34.0°', fontsize=10, color='grey')
+#plt.plot(x1, x2, color='gray', ls='dashed')
+#plt.text(max_o[0]+7, max_o[2]-11, '34.0°', fontsize=10, color='grey')
 
 plt.show()
