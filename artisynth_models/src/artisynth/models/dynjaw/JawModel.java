@@ -1098,10 +1098,6 @@ public class JawModel extends MechModel implements ScalableUnits,
       double stylohyoidMaxForce = 0.39 * 40; // 0.39 cm^2 from van Eijden 1997
       // Anat Rec
       
-      int flag = 0; // normal muscle strength
-      //flag = 1; // reduced muscle strength
-      //flag = 2;
-      
       double ipMaxForce = 66.9;
       double adMaxForce = 40;
       
