@@ -14,6 +14,7 @@ trainingList = ['opening', 'llat', 'rlat']
 x = [i*0.005 for i in range(1000)] # x axis values (time in seconds)
 
 for t in trainingList:
+    name = t
     force = pd.read_csv("data_files/force_" + name + ".txt", delim_whitespace=True, header=None,
         names = ['fx', 'fy', 'fz'])
     li = pd.read_csv("data_files/li_" + name + ".txt", delim_whitespace=True, header=None,
